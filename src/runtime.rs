@@ -113,7 +113,9 @@ pub enum RuntimeError {
 }
 
 impl From<Infallible> for RuntimeError {
-    fn from(_: Infallible) -> Self { unreachable!() }
+    fn from(_: Infallible) -> Self {
+        unreachable!()
+    }
 }
 
 #[derive(Getters)]
@@ -128,11 +130,15 @@ pub struct Runtime<D: DescriptorRgb<K> = RgbDescr, K = XpubDerivable> {
 impl<D: DescriptorRgb<K>, K> Deref for Runtime<D, K> {
     type Target = Stock;
 
-    fn deref(&self) -> &Self::Target { &self.stock }
+    fn deref(&self) -> &Self::Target {
+        &self.stock
+    }
 }
 
 impl<D: DescriptorRgb<K>, K> DerefMut for Runtime<D, K> {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.stock }
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.stock
+    }
 }
 
 impl<D: DescriptorRgb<K>, K> OutpointFilter for Runtime<D, K> {
@@ -213,17 +219,27 @@ where
         self.bprt.try_store().expect("unable to save wallet data");
     }
 
-    pub fn into_stock(self) -> Stock { self.stock }
+    pub fn into_stock(self) -> Stock {
+        self.stock
+    }
 }
 
 impl<D: DescriptorRgb<K>, K> Runtime<D, K> {
-    pub fn wallet(&self) -> &Wallet<K, D> { self.bprt.wallet() }
+    pub fn wallet(&self) -> &Wallet<K, D> {
+        self.bprt.wallet()
+    }
 
-    pub fn wallet_mut(&mut self) -> &mut Wallet<K, D> { self.bprt.wallet_mut() }
+    pub fn wallet_mut(&mut self) -> &mut Wallet<K, D> {
+        self.bprt.wallet_mut()
+    }
 
-    pub fn attach(&mut self, bprt: bpwallet::Runtime<D, K>) { self.bprt = bprt }
+    pub fn attach(&mut self, bprt: bpwallet::Runtime<D, K>) {
+        self.bprt = bprt
+    }
 
-    pub fn network(&self) -> Network { self.bprt.network() }
+    pub fn network(&self) -> Network {
+        self.bprt.network()
+    }
 
     // TODO: Integrate into BP Wallet `TxRow` as L2 and provide transactional info
     pub fn fungible_history(

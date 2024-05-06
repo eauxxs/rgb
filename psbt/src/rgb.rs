@@ -220,8 +220,8 @@ impl RgbExt for Psbt {
                     .proprietary
                     .keys()
                     .filter(|prop_key| {
-                        prop_key.identifier == PSBT_RGB_PREFIX &&
-                            prop_key.subtype == PSBT_IN_RGB_CONSUMED_BY
+                        prop_key.identifier == PSBT_RGB_PREFIX
+                            && prop_key.subtype == PSBT_IN_RGB_CONSUMED_BY
                     })
                     .map(|prop_key| prop_key.data.as_slice())
                     .map(ContractId::copy_from_slice)
