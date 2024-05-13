@@ -201,9 +201,9 @@ where
     #[allow(clippy::result_large_err)]
     pub fn pay(
         &mut self,
-        invoice: &RgbInvoice,
+        invoice: &[RgbInvoice],
         params: TransferParams,
-    ) -> Result<(Psbt, PsbtMeta, Transfer), PayError> {
+    ) -> Result<(Psbt, PsbtMeta, Vec<Transfer>), PayError> {
         self.stock_dirty = true;
         self.wallet_dirty = true;
         self.wallet.pay(&mut self.stock, invoice, params)
@@ -212,7 +212,7 @@ where
     #[allow(clippy::result_large_err)]
     pub fn construct_psbt(
         &mut self,
-        invoice: &RgbInvoice,
+        invoice: &[RgbInvoice],
         params: TransferParams,
     ) -> Result<(Psbt, PsbtMeta), CompositionError> {
         self.wallet_dirty = true;
@@ -222,9 +222,9 @@ where
     #[allow(clippy::result_large_err)]
     pub fn transfer(
         &mut self,
-        invoice: &RgbInvoice,
+        invoice: &[RgbInvoice],
         psbt: &mut Psbt,
-    ) -> Result<Transfer, CompletionError> {
+    ) -> Result<Vec<Transfer>, CompletionError> {
         self.stock_dirty = true;
         self.wallet_dirty = true;
         self.wallet.transfer(&mut self.stock, invoice, psbt)

@@ -221,7 +221,8 @@ pub enum Command {
         sats: Sats,
 
         /// Invoice data
-        invoice: RgbInvoice,
+        #[clap(short = 'i', long)]
+        invoice: Vec<RgbInvoice>,
 
         /// Fee for bitcoin transaction, in satoshis
         #[clap(short, long, default_value = "400")]
@@ -231,6 +232,7 @@ pub enum Command {
         consignment: PathBuf,
 
         /// Name of PSBT file to save. If not given, prints PSBT to STDOUT
+        #[clap(last = true)]
         psbt: Option<PathBuf>,
     },
 
@@ -720,7 +722,7 @@ impl Exec for RgbArgs {
                 let params = TransferParams::with(*fee, *sats);
 
                 let (psbt, _) = wallet
-                    .construct_psbt(invoice, params)
+                    .construct_psbt(&[invoice.clone()], params)
                     .map_err(|err| err.to_string())?;
 
                 let ver = if *v2 { PsbtVer::V2 } else { PsbtVer::V0 };
@@ -744,11 +746,16 @@ impl Exec for RgbArgs {
                 let mut psbt_file = File::open(psbt_name)?;
                 let mut psbt = Psbt::decode(&mut psbt_file)?;
                 let transfer = wallet
-                    .transfer(invoice, &mut psbt)
+                    .transfer(&[invoice.clone()], &mut psbt)
                     .map_err(|err| err.to_string())?;
                 let mut psbt_file = File::create(psbt_name)?;
                 psbt.encode(psbt.version, &mut psbt_file)?;
-                transfer.save_file(out_file)?;
+
+                let parent = out_file.parent().expect("parent directory must exist");
+                for (f, i) in transfer.into_iter().zip(0..) {
+                    let save_path = parent.join(format!("{i}-{}.rgb", f.contract_id()));
+                    f.save_file(save_path)?;
+                }
             }
             Command::Transfer {
                 v2,
@@ -764,8 +771,12 @@ impl Exec for RgbArgs {
 
                 let (psbt, _, transfer) =
                     wallet.pay(invoice, params).map_err(|err| err.to_string())?;
-
-                transfer.save_file(out_file)?;
+                // transfer.save_file(out_file)?;
+                let parent = out_file.parent().expect("parent directory must exist");
+                for (f, i) in transfer.into_iter().zip(0..) {
+                    let save_path = parent.join(format!("{i}-{}.rgb", f.contract_id()));
+                    f.save_file(save_path)?;
+                }
 
                 let ver = if *v2 { PsbtVer::V2 } else { PsbtVer::V0 };
                 match psbt_file {
